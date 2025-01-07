@@ -7,11 +7,25 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Postman CLI
         run: |
           powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
+
       - name: Login to Postman CLI
         run: postman login --with-api-key PMAK-677d0c778797320001072b3c-bd635bf3f51e727a6c0e6c76672c98a5cd
-      - name: Run API tests
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-html
+
+      - name: Run API tests with Newman HTML Reporter
         run: |
-          postman collection run "39894904-66005209-c19c-4319-abd4-f4b9972dc5d7"
+          newman run "39894904-66005209-c19c-4319-abd4-f4b9972dc5d7" --reporters html --reporter-html-export newman-report.html
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: newman-html-report
+          path: newman-report.html
+
+          
